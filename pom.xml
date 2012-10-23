@@ -130,7 +130,7 @@
         </plugins>
     </build>
 
-    <profiles>
+    <profiles>EE
         <profile>
             <id>integration-test</id>
 

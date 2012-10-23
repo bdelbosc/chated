@@ -1,7 +1,20 @@
+/*
+ * Copyright (c) 2012 Nuxeo SA (http://nuxeo.com/) and others.
+ *
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * Contributors:
+ *     Benoit Delbosc
+ */
+
 package org.nuxeo.ecm.vertx.mod;
 
 import org.vertx.java.core.Handler;
 import org.vertx.java.core.buffer.Buffer;
+import org.vertx.java.core.eventbus.EventBus;
 import org.vertx.java.core.http.HttpServer;
 import org.vertx.java.core.http.HttpServerRequest;
 import org.vertx.java.core.json.JsonObject;
@@ -14,8 +27,9 @@ public class NxIn extends Verticle {
         final Logger logger = container.getLogger();
         JsonObject config = container.getConfig();
         HttpServer server = vertx.createHttpServer();
-        // EventBus eb = vertx.eventBus();
-        System.out.println("Config is " + config);
+        final EventBus eb = vertx.eventBus();
+
+        logger.info("NxIn config is " + config);
         server.requestHandler(new Handler<HttpServerRequest>() {
             public void handle(final HttpServerRequest request) {
                 request.bodyHandler(new Handler<Buffer>() {
@@ -26,6 +40,7 @@ public class NxIn extends Verticle {
                         request.response.statusCode = 200;
                         request.response.statusMessage = "Cool thanks";
                         request.response.end();
+                        eb.publish(ChatEd.CHANNEL_NXIN, body);
                     }
                 });
 
@@ -33,7 +48,4 @@ public class NxIn extends Verticle {
         });
         server.listen((Integer) config.getNumber("nxin_port"));
     }
-
-    // todo: receive json and resubmit to event bus
-
 }
