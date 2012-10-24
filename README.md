@@ -14,8 +14,8 @@ notify Nuxeo users that are concurrently modifying a document.
 There is one [Vertx instance](http://vertx.io/manual.html#vertx-instances) with 3
   [verticles](http://vertx.io/manual.html#verticle):
   
-  1. NxIn: Listening for http request on port 8280 comming from Nuxeo
-     request are JSon encoded and contains Nuxeo event. This verticle
+  1. NxIn: Listening for http request on port 8280 comming from Nuxeo.
+     Request are JSon encoded and contains Nuxeo event. This verticle
      send the Nuxeo event into the vertx event bus.
     
   2. NxOut: Propagate specific message from the vertx event bus to Nuxeo
@@ -102,7 +102,7 @@ Then:
 2. Subscribe to /chated/1234 (1234 is a fake docid)
 3. Simulate a Nuxeo event transmission:
 
-    curl -i -H "Accept: application/json" -X POST -d '{"docid":"1234","event":"DocumentSave"}" http://localhost:8280/
+    curl -i -H "Accept: application/json" -X POST -d '{"docid":"1234","eventName":"documentModified","eventDate":"1351085359414","userId":"Administrator"} http://localhost:8280/
 
 You should see a notification on the browser.
 
