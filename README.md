@@ -1,4 +1,4 @@
-chat ed - Chating while editing
+chat ed - Chatting while editing
 =================
 
 
@@ -6,18 +6,63 @@ chat ed - Chating while editing
 
 Part of the Nuxeo Sprint 2012
 
-Using Vert.x as a websocket server to chat and notify editors when
-there are more than one editor on the same document.
+Using Vert.x as a websocket server to chat and notify Nuxeo users that
+are concurrently modifying a document.
+
+## Sequence
+
+  There is one Vertx instance with 3 verticles:
+  - NxIn: receive http request from Nuxeo (json message) en send it to
+    the vertx event bus
+  - NxOut: propagate specific message from the event bus to Nuxeo
+    using a Rest API
+  - ChatEd: chat for editors, handling websocket Cx with browsers
+
+  Auth:
+  - Nuxeo return an edit page with js to autosubscibe to a channel
+    dedicated to the document. It also send a random auth token
+    associated with the userid and the address of the vertx chat-edit
+    app.
+  - The Browser connects to the vertx chat-edit passing the token
+  - The vertx chat-edit set the connection in a "anonymous" state, it
+    sends a message to nx-out to validate the token.
+  - The nx-out receive the message and sent an HTTP rest request to Nuxeo
+    if the response is ok it send a positive reply with the userid,
+    the nx-out send the good news to chat-edit
+  - The chat-edit set the connection as logged as userid
+
+  Retransmiting events:
+  - Nuxeo using a listener send document event to the nx-in vertx server
+  - The nx-in server retransmit message on document channels
+  - The browser receive notification and display it
+
+  Inter editor chat:
+  - User can interact using the chat edit using their dedicated channel
 
 
+## Plan 
 
-## Build
+### Step 1
+
+- Skip the auth, no rest api needed on Nuxeo
+  
+
+### Step 2
+
+- Impl auth
+
+## Requierment
+
+- OpenJDK 7 (Vert.x is not working with JDK 6)
+- Install Vert.x 1.2.3-final, having vertx available on command line
+
+## Build and package
 
 Produce a tgz apps:
 
     mvn package
 
-## Start the Vert.x instance
+## Run Vert.x instance
 
 	cd target
 	tar xzvf chated-1.0.0-SNAPSHOT-mod.tar.gz
@@ -27,7 +72,6 @@ Produce a tgz apps:
 or 
 
 	./run.sh
-	
 	
 ## Testing
 
