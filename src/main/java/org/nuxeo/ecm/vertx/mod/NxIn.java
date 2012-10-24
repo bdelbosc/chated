@@ -35,8 +35,8 @@ public class NxIn extends Verticle {
                 request.bodyHandler(new Handler<Buffer>() {
                     public void handle(Buffer body) {
                         // The entire body has now been received
-                        logger.info("The total body received was "
-                                + body.length() + " bytes");
+                        logger.info("NxIn: Received "
+                                + body.length() + " bytes.");
                         request.response.statusCode = 200;
                         request.response.statusMessage = "Cool thanks";
                         request.response.end();

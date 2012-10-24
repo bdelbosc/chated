@@ -31,7 +31,9 @@ public class ChatEd extends Verticle {
 
     public static final String CHANNEL_NXIN = "chated.nxin";
 
-    public static final String EVENT_BUS = "/chated";
+    public static final String EVENT_BUS_ROOT = "/chated";
+
+    public static final String DOCID = "docid";
 
     public void start() {
         final Logger logger = container.getLogger();
@@ -54,9 +56,22 @@ public class ChatEd extends Verticle {
         final EventBus eb = vertx.eventBus();
         Handler<Message<JsonObject>> myHandler = new Handler<Message<JsonObject>>() {
             public void handle(Message<JsonObject> message) {
-                logger.info("ChatEd Received a nuxeo message " + message.body.toString());
-                logger.info("ChatEd retransmit to browsers " + message.body.toString());
-                eb.publish(EVENT_BUS, message.body);
+                logger.info("ChatEd Received a nuxeo message "
+                        + message.body.toString());
+                String docid = null;
+                try {
+                    docid = message.body.getString(DOCID);
+                } catch (ClassCastException e) {
+                    logger.error("Receive invalid docid");
+                    return;
+                }
+                if (docid == null || docid.isEmpty()) {
+                    logger.error("Missing docid");
+                    return;
+                }
+                message.body.putString("text", message.body.toString());
+                logger.info("ChatEd retransmit message to " + EVENT_BUS_ROOT + "/" + docid);
+                eb.publish(EVENT_BUS_ROOT + "/" + docid, message.body);
             }
         };
         eb.registerHandler(CHANNEL_NXIN, myHandler);
@@ -67,7 +82,8 @@ public class ChatEd extends Verticle {
         JsonArray permitted = new JsonArray();
         permitted.add(new JsonObject()); // Let everything through
         SockJSServer sockJSServer = vertx.createSockJSServer(httpServer);
-        sockJSServer.bridge(new JsonObject().putString("prefix", EVENT_BUS),
+        sockJSServer.bridge(
+                new JsonObject().putString("prefix", EVENT_BUS_ROOT),
                 permitted, permitted);
 
         httpServer.listen((Integer) config.getNumber("chated_port"));

@@ -77,11 +77,12 @@ or
 
 Go to [http://localhost:8180/test](http://localhost:8180/test)
 
-Then Open a connection.
+Then:
+1/ Open a connection.
+2/ Subscribe to /chated/1234 (1234 is a fake docid)
+3/ Simulate a Nuxeo event transmission:
 
-Simulate a Nuxeo event transmission:
-
-    curl -i -H "Accept: application/json" -X POST -d '{"doc":"123412341234","event":"DocumentSave"}" http://localhost:8280/
+    curl -i -H "Accept: application/json" -X POST -d '{"docid":"1234","event":"DocumentSave"}" http://localhost:8280/
 
 You should see a notification on the browser.
 
