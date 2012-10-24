@@ -9,47 +9,56 @@ Part of the Nuxeo Sprint 2012
 Using Vert.x as a websocket server to chat and notify Nuxeo users that
 are concurrently modifying a document.
 
-## Sequence
+## Sequences
 
   There is one Vertx instance with 3 verticles:
-  - NxIn: receive http request from Nuxeo (json message) en send it to
-    the vertx event bus
-  - NxOut: propagate specific message from the event bus to Nuxeo
-    using a Rest API
-  - ChatEd: chat for editors, handling websocket Cx with browsers
+  
+  1. NxIn: Listening for http request on port 8280 comming from Nuxeo
+     request are JSon encoded and contains Nuxeo event. This verticle
+     send the Nuxeo event into the vertx event bus.
+    
+  2. NxOut: Propagate specific message from the vertx event bus to Nuxeo
+     using a Rest API
+    
+  3. ChatEd: Chat for editors listening on port 8180, handling
+     websocket Cx with browsers
 
   Auth:
-  - Nuxeo return an edit page with js to autosubscibe to a channel
-    dedicated to the document. It also send a random auth token
-    associated with the userid and the address of the vertx chat-edit
-    app.
-  - The Browser connects to the vertx chat-edit passing the token
-  - The vertx chat-edit set the connection in a "anonymous" state, it
-    sends a message to nx-out to validate the token.
-  - The nx-out receive the message and sent an HTTP rest request to Nuxeo
-    if the response is ok it send a positive reply with the userid,
-    the nx-out send the good news to chat-edit
-  - The chat-edit set the connection as logged as userid
+  
+  1.  Nuxeo return an edit page with js to autosubscibe to a channel
+  dedicated to the document (/chated/$docid). It also send a random
+  auth token associated with the userid and the address of the vertx
+  chatEd app.
+    
+  2. The Browser connects to the vertx ChatEd passing the token
+  
+  3. ChatEd set the connection in an "anonymous" state, it sends a
+  message to NxOut to validate the token.
+    
+  4. NxOut send an HTTP request to Nuxeo, if the response is ok it
+  receive the userid corresponding to the token. NxOut retransmit
+  to ChatEd the good news using the event bus.
+    
+  5. ChatEd change the state of the connection to be authentified.
 
   Retransmiting events:
-  - Nuxeo using a listener send document event to the nx-in vertx server
-  - The nx-in server retransmit message on document channels
-  - The browser receive notification and display it
+  
+  1. Nuxeo using a listener send document event to the NxIn vertx server
+  
+  2. The NxIn server retransmit message on document channels
+  
+  3. The browser receive notification and display it
 
   Inter editor chat:
-  - User can interact using the chat edit using their dedicated channel
+  
+  1. ChatEd retransmit message to dedicated document channel working
+  like a chat
 
 
 ## Plan
 
-### Step 1
-
-- Skip the auth, no rest api needed on Nuxeo
-
-
-### Step 2
-
-- Impl auth
+ Step 1: Skip the auth, no rest api needed on Nuxeo
+ Step 2: Impl auth
 
 ## Requierment
 
@@ -78,9 +87,10 @@ or
 Go to [http://localhost:8180/test](http://localhost:8180/test)
 
 Then:
-1/ Open a connection.
-2/ Subscribe to /chated/1234 (1234 is a fake docid)
-3/ Simulate a Nuxeo event transmission:
+
+1. Open a connection.
+2. Subscribe to /chated/1234 (1234 is a fake docid)
+3. Simulate a Nuxeo event transmission:
 
     curl -i -H "Accept: application/json" -X POST -d '{"docid":"1234","event":"DocumentSave"}" http://localhost:8280/
 
