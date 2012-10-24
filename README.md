@@ -40,12 +40,12 @@ are concurrently modifying a document.
   - User can interact using the chat edit using their dedicated channel
 
 
-## Plan 
+## Plan
 
 ### Step 1
 
 - Skip the auth, no rest api needed on Nuxeo
-  
+
 
 ### Step 2
 
@@ -64,15 +64,15 @@ Produce a tgz apps:
 
 ## Run Vert.x instance
 
-	cd target
-	tar xzvf chated-1.0.0-SNAPSHOT-mod.tar.gz
+    cd target
+    tar xzvf chated-1.0.0-SNAPSHOT-mod.tar.gz
     cd chated#1.0.0-SNAPSHOT/
-    vertx run org.nuxeo.ecm.vertx.mod.ChatEd -conf chated.conf  -cp lib/chated-1.0.0-SNAPSHOT.jar 
-	
-or 
+    vertx run org.nuxeo.ecm.vertx.mod.ChatEd -conf chated.conf  -cp lib/chated-1.0.0-SNAPSHOT.jar
 
-	./run.sh
-	
+or
+
+    ./run.sh
+
 ## Testing
 
 Go to [http://localhost:8180/test](http://localhost:8180/test)
@@ -81,7 +81,7 @@ Then Open a connection.
 
 Simulate a Nuxeo event transmission:
 
-    curl -i -H "Accept: application/json" -X POST -d "{doc: 123412341234, event: saved}" http://localhost:8280/
+    curl -i -H "Accept: application/json" -X POST -d '{"doc":"123412341234","event":"DocumentSave"}" http://localhost:8280/
 
 You should see a notification on the browser.
 

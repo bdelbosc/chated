@@ -52,10 +52,11 @@ public class ChatEd extends Verticle {
 
         // Subscribe to nuxeo message
         final EventBus eb = vertx.eventBus();
-        Handler<Message> myHandler = new Handler<Message>() {
-            public void handle(Message message) {
-                logger.info("ChatEd Received a nuxeo message " + message.body);
-                eb.publish(EVENT_BUS, message.body.toString());
+        Handler<Message<JsonObject>> myHandler = new Handler<Message<JsonObject>>() {
+            public void handle(Message<JsonObject> message) {
+                logger.info("ChatEd Received a nuxeo message " + message.body.toString());
+                logger.info("ChatEd retransmit to browsers " + message.body.toString());
+                eb.publish(EVENT_BUS, message.body);
             }
         };
         eb.registerHandler(CHANNEL_NXIN, myHandler);

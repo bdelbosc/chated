@@ -40,7 +40,8 @@ public class NxIn extends Verticle {
                         request.response.statusCode = 200;
                         request.response.statusMessage = "Cool thanks";
                         request.response.end();
-                        eb.publish(ChatEd.CHANNEL_NXIN, body);
+                        JsonObject payload = new JsonObject(body.toString());
+                        eb.publish(ChatEd.CHANNEL_NXIN, payload);
                     }
                 });
 
